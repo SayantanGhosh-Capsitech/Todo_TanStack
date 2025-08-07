@@ -11,7 +11,7 @@ const Register: React.FC = () => {
  
   const onFinish = async (values: SignUpType) => {
        console.log(values);
-    try {
+    try { 
       const response = await API.post("/auth/register", values);
       console.log("Registration successful:", response.data);
       navigate("/login");

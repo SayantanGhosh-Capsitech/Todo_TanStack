@@ -89,6 +89,8 @@ const Home = () => {
     <>
       {/* --------------showing data-------- */}
       <button onClick={logout}>Logout</button>
+      <p>{user?.name}</p>
+      <p>{user?.email}</p>
       {/* ------------------Create todo form------------------------------------------- */}
       <Form
         name="basic"

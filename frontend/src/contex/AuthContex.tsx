@@ -14,7 +14,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<Userme | null>(null);
   const [loading, setLoading] = useState(true); 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const fetchUser = async () => {
     try {
@@ -27,7 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error("Error fetching user:", error);
       }
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
