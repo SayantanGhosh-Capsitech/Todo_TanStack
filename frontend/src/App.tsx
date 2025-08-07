@@ -6,6 +6,7 @@ import Home from './components/Home'
 import ProtectRoutes from './components/ProtectRoutes'
 import { AuthProvider } from './contex/AuthContex'
 import PublicRoute from './components/PublicRoutes'
+import Homepage from './components/Homepage'
 function App() {
 
   return (
@@ -19,7 +20,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         </Route>
          <Route element={<ProtectRoutes/>}>
-          <Route path="/home" element={<Home/>} />
+          <Route path="/home" element={<Homepage/>} />
           </Route>
       </Routes>
     

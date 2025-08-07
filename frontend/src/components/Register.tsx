@@ -2,24 +2,41 @@ import { Form, Input, Button, Typography, Card } from "antd";
 import { NavLink, useNavigate } from "react-router-dom";
 import type { SignUpType } from "../Types/User";
 import API from "../api/Api";
+import { useMutation } from "@tanstack/react-query";
  
 const { Title } = Typography;
  
 const Register: React.FC = () => { 
   const navigate = useNavigate();
   const [form] = Form.useForm();
- 
-  const onFinish = async (values: SignUpType) => {
-       console.log(values);
-    try { 
-      const response = await API.post("/auth/register", values);
+
+
+  const registertodo = useMutation({
+     mutationFn: (resdata: SignUpType) => API.post("/auth/register", resdata),
+    onSuccess: (response) => {
       console.log("Registration successful:", response.data);
       navigate("/login");
-    } catch (err) {
-      console.error("Registration failed:", err);
-    }
+    },
+     onError: (error) => {
+    console.error("Registration failed:", error);
+  },
+  })
+
+const onFinish = async (values: SignUpType) => {
+  registertodo.mutate(values);
+}
+  
  
-  };
+  // const onFinish = async (values: SignUpType) => {
+  //      console.log(values);
+  //   try { 
+  //     const response = await API.post("/auth/register", values);
+  //     console.log("Registration successful:", response.data);
+  //     navigate("/login");
+  //   } catch (err) {
+  //     console.error("Registration failed:", err);
+  //   }
+  // };
  
   return (
     <>
@@ -49,8 +66,8 @@ const Register: React.FC = () => {
             onFinish={onFinish}
             layout="vertical" >
             <Form.Item
-              name="username"
-              label="Username"
+              name="name"
+              label="Name"
               rules={[{ required: true, message: "Please enter your name!" }]}
             >
               <Input placeholder="Username" />

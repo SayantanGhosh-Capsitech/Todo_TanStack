@@ -4,29 +4,45 @@ import { NavLink, useNavigate } from "react-router-dom";
 import type { LoginType } from "../Types/User";
 import API from "../api/Api";
 import { useAuth } from '../contex/AuthContex';
+import { useMutation } from "@tanstack/react-query";
  
 const { Title } = Typography;
  
 const Login = () => {
    const navigate = useNavigate();
    const [form] = Form.useForm();
- const { setUser } = useAuth(); // Grab setUser from context
+ const { setUser } = useAuth(); 
 
-  const onFinish = async (values: LoginType) => {
-    try {
-      console.log('Sending Login data:', values);
-      
-      // await API.post("/login", values);
-    const response = await API.post("/auth/login", values);
-    setUser(response.data.user);
-      // const response = await API.get("/me");
-      // setUser(response.data); 
-
+  const Logintodo = useMutation({
+    mutationFn: (resdata: LoginType) => API.post("/auth/login", resdata),
+    onSuccess: (response) => {
+      console.log("Login successful:", response.data);
+      setUser(response.data.user);
       navigate("/home");
-    } catch (err: any) {
-      console.error("Login failed:", err.response?.data || err.message);
-    }
-  };
+    },
+     onError: (error) => {
+    console.error("Login failed:", error);
+  },
+  })
+
+const onFinish = async (values: LoginType) => {
+  Logintodo.mutate(values);
+}
+
+
+  // const onFinish = async (values: LoginType) => {
+  //   try {
+  //     console.log('Sending Login data:', values);
+  //     // await API.post("/login", values);
+  //   const response = await API.post("/auth/login", values);
+  //   setUser(response.data.user);
+  //     // const response = await API.get("/me");
+  //     // setUser(response.data);
+  //     navigate("/home");
+  //   } catch (err: any) {
+  //     console.error("Login failed:", err.response?.data || err.message);
+  //   }
+  // };
     
   return (
     <>
@@ -77,7 +93,6 @@ const Login = () => {
             >
               <Input.Password placeholder="Password" />
             </Form.Item>
- 
             <Form.Item>
               <Button type="primary" htmlType="submit" block>
                 Login
