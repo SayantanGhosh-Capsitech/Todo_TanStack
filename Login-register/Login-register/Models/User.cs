@@ -18,6 +18,9 @@ namespace Login_register.Models
         [BsonElement("password")]
         public string Password { get; set; } = string.Empty;
 
+        [BsonElement("role")]
+        public string Role { get; set; } = "User";
+
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 

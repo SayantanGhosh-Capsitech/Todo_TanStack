@@ -51,7 +51,6 @@ namespace Login_register.Controllers
         {
             var update = Builders<Todo>.Update
                 .Set(t => t.Todotext, todoDto.Todotext);
-
             await _todos.UpdateOneAsync(t => t.ID == id, update);
             return Ok(new { message = "Updated" });
 

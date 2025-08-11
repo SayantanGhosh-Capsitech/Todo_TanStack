@@ -37,6 +37,7 @@ namespace Login_register.Services
                 Name = dto.Name,
                 Email = dto.Email,
                 Password = hashed, // Hash the password before storing it
+                Role = "User",
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
@@ -74,7 +75,8 @@ namespace Login_register.Services
             {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Name),
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role)
             };
 
             //Retrieves the secret from appsettings.json via _config["Jwt:Secret"].Converts the secret into a SymmetricSecurityKey. Uses HmacSha256 to sign the token, making it tamper-proof.
@@ -120,5 +122,75 @@ namespace Login_register.Services
         { 
             await _users.ReplaceOneAsync(u => u.Id == user.Id, user);
         }
+ 
+        public async Task<List<UserAdminDto>> GetAllUsersForAdminAsync()
+        {
+            var users = await _users.Find(_ => true).ToListAsync();
+
+            return users.Select(u => new UserAdminDto
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Email = u.Email,
+                Role = u.Role,
+                CreatedAt = u.CreatedAt
+            }).ToList();
+        }
+
+        public async Task<bool> DeleteUserAsync(string id)
+        {
+            var result = await _users.DeleteOneAsync(u => u.Id == id);
+            return result.DeletedCount > 0;
+        }
+
+
+
+        // this below 2 function for creating admin in program.cs
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
+        }
+
+        public async Task CreateUserAsync(User user)
+        {
+            await _users.InsertOneAsync(user);
+        }
+
+        public async Task<(bool Success, string Message)> AdminCreateUserAsync(UserCreateDto dto)
+        {
+            var existingUser = await _users.Find(u => u.Email == dto.Email).FirstOrDefaultAsync();
+            if (existingUser != null)
+                return (false, "User with this email already exists.");
+
+            var hashed = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            var newUser = new User
+            {
+                Name = dto.Name,
+                Email = dto.Email,
+                Password = hashed,
+                Role = dto.Role,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _users.InsertOneAsync(newUser);
+            return (true, "User created successfully.");
+        }
+        public async Task<(bool Success, string Message)> AdminUpdateUserAsync(string id, UserUpdateDto dto)
+        {
+            var user = await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
+            if (user == null)
+                return (false, "User not found.");
+
+            user.Name = dto.Name;
+            user.Email = dto.Email;
+            user.Role = dto.Role;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _users.ReplaceOneAsync(u => u.Id == id, user);
+            return (true, "User updated successfully.");
+        }
+
+
     }
 }

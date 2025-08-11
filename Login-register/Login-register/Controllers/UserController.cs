@@ -36,7 +36,7 @@ namespace Login_register.Controllers
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
-        {
+        { 
             var (success, message, token, refreshToken, user) = await _userService.LoginAsync(loginDto);
             if (!success)
             {
@@ -66,7 +66,7 @@ namespace Login_register.Controllers
                 message,
                 token,
                 refreshToken,
-                user = new { user!.Id, user.Name, user.Email }
+                user = new { user!.Id, user.Name, user.Email, user.Role }
             });
         }
 
@@ -100,8 +100,9 @@ namespace Login_register.Controllers
             var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var email = User.FindFirstValue(ClaimTypes.Email);
             var name = User.FindFirstValue(ClaimTypes.Name);
+            var role = User.FindFirstValue(ClaimTypes.Role);
 
-            return Ok(new { id, name, email });
+            return Ok(new { id, name, email, role });
         }
 
         [HttpPost("refresh")]
