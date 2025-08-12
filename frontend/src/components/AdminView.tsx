@@ -5,10 +5,12 @@ import type { AdminData } from "../Types/User";
 import { Space, Table, Button, Select, Modal, Input, Form } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
+import dayjs from "dayjs";
 
 const AdminView = () => {
   const [form] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCreateModelVisible, setIsCreateModelVisible] = useState(false);
   const [editTodo, setEditTodo] = React.useState<AdminData | null>(null);
 
   const queryClient = useQueryClient();
@@ -29,12 +31,11 @@ const AdminView = () => {
 
   // Create Users------------------------------
   const createUsers = useMutation({
-    mutationFn: (newUser: AdminData) =>
-      API.post("/admin/create-users", newUser),
+    mutationFn: (newUser: AdminData) => API.post("/admin/create-user", newUser),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userdata"] });
-      //   formCreate.resetFields();
-       setIsModalVisible(true);
+      form.resetFields();
+      setIsCreateModelVisible(false);
     },
   });
 
@@ -44,6 +45,7 @@ const AdminView = () => {
       API.put(`/admin/update-user/${updateUser.id}`, updateUser),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userdata"] });
+      form.resetFields();
       setIsModalVisible(false);
     },
   });
@@ -112,7 +114,7 @@ const AdminView = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <EditOutlined onClick={() => handleEdit(record)} />
+          <EditOutlined onClick={() => handleEdit(record)}/>
           <DeleteOutlined
             style={{ color: "red" }}
             onClick={() => handleDelete(record.id)}
@@ -126,12 +128,20 @@ const AdminView = () => {
 
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop:"-20px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginTop: "-20px",
+        }}
+      >
         <Button
-          onClick={() => {createUsers()}}
+          onClick={() => {
+            setIsCreateModelVisible(true);
+          }}
           style={{ background: "#004b8b", color: "#ffff" }}
         >
-          <PlusOutlined/> Add User
+          <PlusOutlined /> Add User
         </Button>
       </div>
       <Table<AdminData>
@@ -142,7 +152,7 @@ const AdminView = () => {
           sno: index + 1,
           email: user.email,
           role: user.role,
-          jdate: user.createdAt,
+          jdate: dayjs(user.createdAt).format("DD MMM YYYY"),
         }))}
         pagination={{ pageSize: 10 }}
         size="small"
@@ -151,8 +161,11 @@ const AdminView = () => {
       {/* Create User====================================== */}
       <Modal
         title="Add a New User"
-        open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        open={isCreateModelVisible}
+        onCancel={() => {
+          form.resetFields();
+          setIsCreateModelVisible(false);
+        }}
         footer={null}
         destroyOnHidden
       >
@@ -192,13 +205,16 @@ const AdminView = () => {
             <Button
               type="primary"
               htmlType="submit"
-              loading={updateUsers.isPending}
+              loading={createUsers.isPending}
             >
               Add User
             </Button>
             <Button
               style={{ marginLeft: 8 }}
-              onClick={() => setIsModalVisible(false)}
+              onClick={() => {
+                form.resetFields();
+                setIsCreateModelVisible(false);
+              }}
             >
               Cancel
             </Button>
@@ -209,7 +225,10 @@ const AdminView = () => {
       <Modal
         title="Edit User"
         open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={() => {
+          form.resetFields();
+          setIsModalVisible(false);
+        }}
         footer={null}
         destroyOnHidden
       >
@@ -255,7 +274,10 @@ const AdminView = () => {
             </Button>
             <Button
               style={{ marginLeft: 8 }}
-              onClick={() => setIsModalVisible(false)}
+              onClick={() => {
+                form.resetFields();
+                setIsModalVisible(false);
+              }}
             >
               Cancel
             </Button>

@@ -64,10 +64,10 @@ const onFinish = async (values: LoginType) => {
             borderRadius: 12,
           }}
         >
-          <Flex justify="center" align=""><Logo /></Flex>
-          <Title level={4} style={{ textAlign: "center", marginTop: 20 }}>
+          <Flex justify="center" style={{marginBottom:20}}><Logo /></Flex>
+          {/* <Title level={4} style={{ textAlign: "center", marginTop: 20 }}>
             Login to your account
-          </Title>
+          </Title> */}
           <Form
             form={form}
             name="login_form"
